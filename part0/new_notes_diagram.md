@@ -6,6 +6,9 @@ sequenceDiagram
 
   browser->>server: POST https://fullstack-exampleapp.herokuapp.com/new_note
   activate server
+
+  Note right of browser: The server takes the payload from the POST request and creates a new note object.
+
   server-->>browser: HTTP Status code 302
   deactivate server
 
