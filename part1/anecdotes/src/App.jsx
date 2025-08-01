@@ -24,11 +24,22 @@ const App = () => {
 
     const maxIndex = anecdotes.length
 
+    // Stores vote counts.
+    const votes = new Array(maxIndex).fill(0)
+    const [allVotes, setAllVotes] = useState(votes)
+
     // Get a random anecdote.
-    const setNextAnecdote = () => {
+    const setNextAnecdote = () =>{
         // Choose random number from 0 to maximum index of array.
         let random = Math.floor(Math.random() * maxIndex)
         setSelected(random)
+    }
+
+    // Add a vote to the current anecdote.
+    const setVote = () =>{
+        const copy = [...allVotes]
+        copy[selected] += 1
+        setAllVotes(copy)
     }
 
     return (
@@ -36,6 +47,7 @@ const App = () => {
             {anecdotes[selected]}
             <p>
                 <Button onClick={setNextAnecdote} text={'Next Anecdote'}></Button>
+                <Button onClick={setVote} text={'Vote'}></Button>
             </p>
         </div>
     )
