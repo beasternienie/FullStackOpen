@@ -1,5 +1,10 @@
 import { useState } from 'react'
 
+const Header = (props) =>{
+    return (
+        <h1>{props.text}</h1>
+    )
+}
 
 const Button = (props) =>{
 
@@ -42,12 +47,33 @@ const App = () => {
         setAllVotes(copy)
     }
 
+    const getMostVotedIndex = () =>{
+        let most = allVotes[0]
+        let mostIndex = 0
+        // Find the most voted anecdote index.
+        for(let i =0; i < allVotes.length; i++){
+            if(allVotes[i] >= most){
+                most = allVotes[i]
+                mostIndex = i
+            }
+        }
+        // Return the index of the most voted anecdote.
+        return mostIndex
+    }
+
+    let mostVoted = anecdotes[getMostVotedIndex()]
+
     return (
         <div>
-            {anecdotes[selected]}
+            <Header text={'Anecdote of the day'} />
+            <p>{anecdotes[selected]}<br />has {allVotes[selected]} votes
+            </p>
             <p>
                 <Button onClick={setNextAnecdote} text={'Next Anecdote'}></Button>
                 <Button onClick={setVote} text={'Vote'}></Button>
+            </p>
+            <Header text={'Anecdote with most votes'} />
+            <p>{mostVoted}<br />has {allVotes[getMostVotedIndex()]} votes
             </p>
         </div>
     )
