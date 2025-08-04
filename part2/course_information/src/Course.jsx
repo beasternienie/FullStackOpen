@@ -18,7 +18,19 @@ const Part = (props) =>{
     )
 }
 
+const Total = ({total}) =>{
+
+    const style = {
+        fontWeight: 'bold'
+    }
+
+    return(
+        <p style={style}>total of {total} exercises</p>
+    )
+}
+
 const Course = ({course}) =>{
+
     const title = course.name
     const parts = course.parts
 
@@ -34,7 +46,7 @@ const Course = ({course}) =>{
         <div>
             <Header title={title} />
             <Content parts={parts} />
-            <p>total of {total} exercises</p>
+            <Total total={total} />
         </div>
     )
 }
