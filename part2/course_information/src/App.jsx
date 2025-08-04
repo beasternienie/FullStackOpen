@@ -1,5 +1,11 @@
 import Course from './Course'
 
+const Header = ({title}) =>{
+    return(
+        <h1>{title}</h1>
+    )
+}
+
 const App = () => {
     const courses = [
         {
@@ -50,6 +56,7 @@ const App = () => {
     return (
         // Create a course component for each course object.
         <div>
+            <Header title={'Web development curriculum'} />
             {courses.map(course => <Course key={course.id} course={course} />)}
         </div>
     )
