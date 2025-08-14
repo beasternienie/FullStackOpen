@@ -3,11 +3,11 @@ import { useState } from 'react'
 const Person = ({person}) =>{
 
     const name = person.name
-    const id = person.id
+    const number = person.number
 
     return(
         <div>
-            {name}
+            {name} {number}
         </div>
     )
 
@@ -17,11 +17,14 @@ const App = () => {
 
     // State controls the list of people.
     const [persons, setPersons] = useState([
-        { name: 'Arto Hellas' }
+        { name: 'Arto Hellas', number: '040-1234567' }
     ])
 
     // State controls the form input.
     const [newName, setNewName] = useState('')
+
+    // State controls the form input for phone number.
+    const [newNumber, setNewNumber] = useState('')
 
     // Function adds a new person.
     const addPerson = (event) =>{
@@ -37,11 +40,13 @@ const App = () => {
             // Add person.
             const person = {
                 name: newName,
-                id: String(persons.length + 1)
+                id: String(persons.length + 1),
+                number: newNumber
             }
 
             setPersons(persons.concat(person))
             setNewName('')
+            setNewNumber('')
         }
 
     }
@@ -52,12 +57,20 @@ const App = () => {
         setNewName(event.target.value)
     }
 
+    // Function handles the changing of the phone number.
+    const handleNumberChange = (event) =>{
+        setNewNumber(event.target.value)
+    }
+
     return (
         <div>
             <h2>Phonebook</h2>
             <form onSubmit={addPerson}>
                 <div>
                     name: <input name="nameField" value={newName} onChange={handlePersonChange}/>
+                </div>
+                <div>
+                    number: <input name={"numberField"} value ={newNumber} onChange={handleNumberChange} />
                 </div>
                 <div>
                     <button type="submit">add</button>
