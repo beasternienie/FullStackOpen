@@ -1,5 +1,18 @@
 import { useState } from 'react'
 
+const Person = ({person}) =>{
+
+    const name = person.name
+    const id = person.id
+
+    return(
+        <div>
+            {name}
+        </div>
+    )
+
+}
+
 const App = () => {
 
     // State controls the list of people.
@@ -15,13 +28,22 @@ const App = () => {
         event.preventDefault()
         console.log('form button clicked', event.target)
 
-        const person = {
-            name: newName,
-            id: String(persons.length + 1)
+        // Check if person already exists with the name.
+        if(persons.some(person => person.name === newName)){
+            // Show alert.
+            window.alert(`${newName} is already added to phonebook`)
+        }
+        else{
+            // Add person.
+            const person = {
+                name: newName,
+                id: String(persons.length + 1)
+            }
+
+            setPersons(persons.concat(person))
+            setNewName('')
         }
 
-        setPersons(persons.concat(person))
-        setNewName('')
     }
 
     // Function handles changing the value in the field.
@@ -42,10 +64,8 @@ const App = () => {
                 </div>
             </form>
             <h2>Numbers</h2>
-            <ul>
-                {persons.map(person => <li key={person.name}>{person.name}</li>)}
-            </ul>
-        </div>
+                {persons.map(person => <Person key={person.name} person={person} />)}
+            </div>
     )
 }
 
