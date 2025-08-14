@@ -17,14 +17,23 @@ const App = () => {
 
     // State controls the list of people.
     const [persons, setPersons] = useState([
-        { name: 'Arto Hellas', number: '040-1234567' }
+        { name: 'Arto Hellas', number: '040-123456', id: 1 },
+        { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
+        { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
+        { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
     ])
 
-    // State controls the form input.
+    // State controls the name field input.
     const [newName, setNewName] = useState('')
 
     // State controls the form input for phone number.
     const [newNumber, setNewNumber] = useState('')
+
+    // State controls the filter input.
+    const [newFilterValue, setNewFilterValue] = useState('')
+
+    // State controls which phonebook entries are shown. Shows all names by default.
+    const [showAll, setShowAll] = useState(true)
 
     // Function adds a new person.
     const addPerson = (event) =>{
@@ -40,7 +49,7 @@ const App = () => {
             // Add person.
             const person = {
                 name: newName,
-                id: String(persons.length + 1),
+                id: persons.length + 1,
                 number: newNumber
             }
 
@@ -51,20 +60,38 @@ const App = () => {
 
     }
 
-    // Function handles changing the value in the field.
+    // Function handles changing the name field value.
     const handlePersonChange = (event) =>{
-        console.log(event.target.value)
         setNewName(event.target.value)
     }
 
-    // Function handles the changing of the phone number.
+    // Function handles the changing of the phone number field value.
     const handleNumberChange = (event) =>{
         setNewNumber(event.target.value)
+    }
+
+    // Filter the persons by the filter value. Ignores case. Matches partial strings.
+    const filteredPersons = showAll ? persons: persons.filter(person =>
+        person.name.toLowerCase().includes(newFilterValue.toLowerCase()))
+
+    // Function handles the changing of the filter field.
+    const handleFilterChange = (event) =>{
+        if(event.target.value !== ''){
+            setShowAll(false)
+        }
+        else{
+            setShowAll(true)
+        }
+
+        setNewFilterValue(event.target.value)
     }
 
     return (
         <div>
             <h2>Phonebook</h2>
+            <div>
+                filter shown with: <input name="filterField" onChange={handleFilterChange} />
+            </div>
             <form onSubmit={addPerson}>
                 <div>
                     name: <input name="nameField" value={newName} onChange={handlePersonChange}/>
@@ -77,7 +104,7 @@ const App = () => {
                 </div>
             </form>
             <h2>Numbers</h2>
-                {persons.map(person => <Person key={person.name} person={person} />)}
+                {filteredPersons.map(person => <Person key={person.name} person={person} />)}
             </div>
     )
 }
