@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react'
 import axios from "axios";
+import personService from "./services/persons";
 
 // Represents a person entry in the phonebook.
 const Person = ({person}) =>{
@@ -93,14 +94,12 @@ const App = () => {
                 number: newNumber
             }
 
-            axios
-                .post('http://localhost:3001/persons', person)
-                .then(response => {
-                    console.log(response)
-                    setPersons(persons.concat(person))
-                    setNewName('')
-                    setNewNumber('')
-                })
+            personService.create(person).then(returnedPerson =>{
+                setPersons(persons.concat(returnedPerson))
+                setNewName('')
+                setNewNumber('')
+            })
+
         }
 
     }
@@ -132,15 +131,13 @@ const App = () => {
     }
 
     // Event hook to initialize entry data.
-    const hook = () =>{
-            axios
-                .get('http://localhost:3001/persons')
-                .then(response =>{
-                    setPersons(response.data)
+    useEffect(() =>{
+            personService
+                .getAll()
+                .then(initialPersons =>{
+                    setPersons(initialPersons)
                 })
-    }
-
-    useEffect(hook, [])
+    }, [])
 
     return (
         <div>
