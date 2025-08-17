@@ -1,21 +1,7 @@
 import {useEffect, useState} from 'react'
-import axios from "axios";
 import personService from "./services/persons";
 
 // Represents a person entry in the phonebook.
-const Person = ({person}) =>{
-
-    const name = person.name
-    const number = person.number
-
-    return(
-        <div>
-            {name} {number}
-        </div>
-    )
-
-}
-
 // The filter component.
 const Filter = ({handler}) =>{
     return(
@@ -51,11 +37,25 @@ const Form = (props) =>{
     )
 }
 
+const DeleteButton = ({person, deleteHandler}) =>{
+
+    const associatedPerson = person // The person associated with this delete button.
+
+    return(
+        // Call the delete handler passing the associated person's id.
+        <button onClick={() => deleteHandler(associatedPerson)}>Delete</button>
+    )
+}
+
 // The display component for displaying the phonebook entries.
-const Persons = ({filteredPersons}) =>{
+const Persons = ({filteredPersons, deleteHandler}) =>{
     return(
         <div>
-            {filteredPersons.map(person => <Person key={person.name} person={person} />)}
+            {filteredPersons.map((person) =>
+                <div key={person.name}>
+                    {person.name} {person.number} <DeleteButton person={person} deleteHandler={deleteHandler} />
+                </div>
+            )}
         </div>
     )
 }
@@ -90,7 +90,7 @@ const App = () => {
             // Add person.
             const person = {
                 name: newName,
-                id: persons.length + 1,
+                id: (persons.length + 1).toString(),
                 number: newNumber
             }
 
@@ -102,6 +102,26 @@ const App = () => {
 
         }
 
+    }
+
+    // Delete a person.
+    const deletePerson = (person) =>{
+
+        const deletedPersonID = person.id
+
+        console.log('Deleting person with id:', deletedPersonID)
+        // Show message to ask for confirmation.
+        if(confirm(`Are you sure you want to delete ${person.name}?`)){
+            // If user confirms, send delete request.
+            personService.requestDelete(deletedPersonID)
+                .then(() => {
+                        console.log('Delete was successful.')
+                        // If request is successful, filter data to exclude the deleted person.
+                        setPersons(persons.filter(person => person.id !== deletedPersonID))
+                    }
+                )
+                .catch(error => console.log(error))
+        }
     }
 
     // Function handles changing the name field value.
@@ -146,7 +166,7 @@ const App = () => {
             <Form addPerson={addPerson} newName={newName} nameHandler={handlePersonChange}
                   newNumber={newNumber} numberHandler={handleNumberChange} />
             <h2>Numbers</h2>
-            <Persons filteredPersons={filteredPersons} />
+            <Persons filteredPersons={filteredPersons} deleteHandler={deletePerson} />
         </div>
     )
 }
