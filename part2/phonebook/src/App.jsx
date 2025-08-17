@@ -187,6 +187,7 @@ const App = () => {
         <div>
             <h2>Phonebook</h2>
             <Filter handler={handleFilterChange}/>
+            <h2>Add New Person</h2>
             <Form addPerson={addPerson} newName={newName} nameHandler={handlePersonChange}
                   newNumber={newNumber} numberHandler={handleNumberChange} />
             <h2>Numbers</h2>
