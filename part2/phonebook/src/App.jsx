@@ -1,7 +1,6 @@
 import {useEffect, useState} from 'react'
 import personService from "./services/persons";
 
-// Represents a person entry in the phonebook.
 // The filter component.
 const Filter = ({handler}) =>{
     return(
@@ -37,6 +36,7 @@ const Form = (props) =>{
     )
 }
 
+// Delete button for deleting a person.
 const DeleteButton = ({person, deleteHandler}) =>{
 
     const associatedPerson = person // The person associated with this delete button.
@@ -83,8 +83,32 @@ const App = () => {
 
         // Check if person already exists with the name.
         if(persons.some(person => person.name === newName)){
-            // Show alert.
-            window.alert(`${newName} is already added to phonebook`)
+
+            // If person exists, get the array for that person.
+            const selectedPerson = persons.find(person => person.name === newName)
+
+            // If the user is adding a new number, ask for confirmation...
+            if(persons.some(person => person.number !== newNumber)){
+
+                if(window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)){
+                    // Copy existing person.
+                    const updatedPerson = {...selectedPerson, number: newNumber}
+                    // Send update request.
+                    personService.update(selectedPerson.id, updatedPerson).then(() =>{
+                        // If request is successful, update state.
+                        setPersons(persons => persons.map(person => {
+                            if(person.name === updatedPerson.name){
+                                return updatedPerson
+                            }
+                            return person
+                        }))
+                        setNewName('')
+                        setNewNumber('')
+                    })
+                }
+
+            }
+
         }
         else{
             // Add person.

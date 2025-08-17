@@ -21,4 +21,8 @@ const requestDelete = (id) =>{
     return request.then(response => response.data)
 }
 
+const updateNumber = (id, newNumber) =>{
+    const request = axios.put(`${baseURL}/${id}`)
+}
+
 export default {getAll, create, update, requestDelete}
