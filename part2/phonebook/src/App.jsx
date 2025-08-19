@@ -60,6 +60,47 @@ const Persons = ({filteredPersons, deleteHandler}) =>{
     )
 }
 
+// Display a notification.
+const Notification = ({message}) => {
+
+    const notificationStyle ={
+        color: 'black',
+        fontSize: 20,
+        padding: '10px',
+        marginBottom: '10px',
+        border: '2px solid'
+    }
+
+    if (message === null){
+        return null
+    }
+
+    return(
+        <div className= 'notification' style={notificationStyle}>{message}</div>
+    )
+
+}
+
+// Display an error.
+const Error = ({message}) =>{
+
+    const errorStyle = {
+        color: 'red',
+        fontSize: 20,
+        padding: '10px',
+        marginBottom: '10px',
+        border: '2px solid'
+    }
+
+    if (message === null){
+        return null
+    }
+
+    return(
+        <div className= 'error' style={errorStyle}>{message}</div>
+    )
+}
+
 const App = () => {
 
     // State controls the list of people.
@@ -76,6 +117,12 @@ const App = () => {
 
     // State controls which phonebook entries are shown. Shows all names by default.
     const [showAll, setShowAll] = useState(true)
+
+    // State controls notification state, on or off.
+    const [message, setMessage] = useState(null)
+
+    // State controls error state.
+    const [error, setError] = useState(null)
 
     // Function adds a new person.
     const addPerson = (event) =>{
@@ -104,6 +151,17 @@ const App = () => {
                         }))
                         setNewName('')
                         setNewNumber('')
+                        // Show success notification.
+                        setMessage(`Updated number for ${updatedPerson.name} to ${updatedPerson.number}`)
+                        setTimeout(()=>{
+                            setMessage(null)
+                        }, 5000)
+                    })
+                    .catch(() =>{
+                        setError(`New number was not added, as ${updatedPerson.name} could not be found.`)
+                        setTimeout(()=>{
+                            setError(null)
+                        }, 5000)
                     })
                 }
 
@@ -122,6 +180,11 @@ const App = () => {
                 setPersons(persons.concat(returnedPerson))
                 setNewName('')
                 setNewNumber('')
+                // Show success notification.
+                setMessage(`Added ${returnedPerson.name}`)
+                setTimeout(()=>{
+                    setMessage(null)
+                }, 5000)
             })
 
         }
@@ -186,6 +249,8 @@ const App = () => {
     return (
         <div>
             <h2>Phonebook</h2>
+            <Notification message={message} />
+            <Error message={error} />
             <Filter handler={handleFilterChange}/>
             <h2>Add New Person</h2>
             <Form addPerson={addPerson} newName={newName} nameHandler={handlePersonChange}
