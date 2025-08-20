@@ -10,15 +10,6 @@ const Searchbar = ({handleFilterChange}) =>{
     )
 }
 
-// Current search results.
-const SearchResults = ({filteredCountries}) =>{
-    return(
-        <div>
-
-        </div>
-    )
-}
-
 // Display country information.
 const Country =({countries}) =>{
 
@@ -43,12 +34,11 @@ const Country =({countries}) =>{
         let country = countries[0]
         // Get the languages.
         let languages = Object.entries(country.languages)
-        // If single country...
         return (
             <div>
                 <h1>{country.name.common}</h1>
-                {country.capital}<br/>
-                {country.area}
+                Capital: {country.capital}<br/>
+                Area: {country.area}
                 <h2>Languages</h2>
                 <ul>
                     {languages.map(language =>{
@@ -61,45 +51,89 @@ const Country =({countries}) =>{
     }
 }
 
+// Display message.
+const Message =({message}) =>{
+
+    if({message} == null){
+        return null
+    }
+
+    return(
+        <div>
+            {message}
+        </div>
+    )
+}
+
 const App =() => {
 
     // Handle the state of the search bar.
     const [filter, setFilter] = useState('')
 
+    // Handle the message display.
+    const [message, showMessage] = useState(null)
+
     // Handle the currently shown country data.
     const [countries, setCountries] = useState([])
 
     const handleFilterChange = (event) => {
-        console.log("Current search:", event.target.value)
+
         setFilter(event.target.value)
 
+        console.log("Search:", event.target.value)
+
         countryService.getAll().then(response => {
+
             // Make a copy of the country data.
             let data = [...response]
+            let filteredCountries = null
 
-            // Filter country data.
-            return data.filter(country => {
-                return country.name.common.toLowerCase().includes(event.target.value.toLowerCase())
-            })
+            // Only update filtered countries data if the search query is not empty.
+            if(event.target.value.length > 0) {
+                // Filter country data.
+                filteredCountries = data.filter(country => {
+                    return country.name.common.toLowerCase().includes(event.target.value.toLowerCase())
+                })
+                console.log("Countries found:", filteredCountries.length)
+            }
+
+            return filteredCountries
 
         }).then((filteredCountries) => {
-            // Check the number of countries.
-            if(filteredCountries.length > 10){
-                console.log("Too many filtered items.")
-                // Set the filtered countries to empty.
+
+            // Return early if there is no search query.
+            if(filteredCountries === null){
                 setCountries([])
+                showMessage(null)
+                return
             }
+
+            // If there is no valid country...
+            if(filteredCountries.length === 0){
+                setCountries([])
+                showMessage("No countries found.")
+            }
+            // If there is only 1 country to display...
             else if(filteredCountries.length === 1){
-                console.log("One country found.")
                 // Set country to filtered country data.
                 setCountries(filteredCountries)
+                showMessage(null)
             }
+            // If more than 10 countries exist...
+            else if(filteredCountries.length > 10){
+                // Set the filtered countries to empty.
+                setCountries([])
+                // Show message.
+                showMessage("Too many countries to display. Please refine your search terms.")
+
+            }
+            // If there are 2-10 countries...
             else{
-                console.log("Multiple countries found.")
                 // Set countries to the filtered country names.
                 setCountries(filteredCountries.map(country =>{
                     return country.name.common
                 }))
+                showMessage(null)
             }
         })
     }
@@ -109,31 +143,10 @@ const App =() => {
         console.log("Countries:", countries)
     }, [countries])
 
-    // Retrieve data for a country by its name.
-    const getCountry = (name) =>{
-        countryService.getCountry(name)
-            .then((country) =>{
-                console.log("Country data retrieved for", country.name.common)
-                // Create object.
-                const newCountry = {
-                    name: country.name.common,
-                    capital: country.capital[0],
-                    area: country.area,
-                    languages: country.languages,
-                    flagImage: country.flags.png,
-                    flagAlt: country.flags.alt
-                }
-                console.log(newCountry)
-                return newCountry
-            })
-            .catch((error) => {
-                console.log("There was an error trying to get country data:", error)
-            })
-    }
-
     return (
         <div>
             <Searchbar handleFilterChange={handleFilterChange} />
+            <Message message={message} />
             <Country countries={countries} filter={filter}/>
         </div>
     )
