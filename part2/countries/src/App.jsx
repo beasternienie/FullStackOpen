@@ -10,8 +10,15 @@ const Searchbar = ({handleFilterChange}) =>{
     )
 }
 
+// Show country data button.
+const ShowButton = ({country, handler}) =>{
+    return(
+        <button onClick={() => handler(country)}>Show</button>
+    )
+}
+
 // Display country information.
-const Country =({countries}) =>{
+const Country =({countries, countryHandler}) =>{
 
     if(countries.length === 0){
         return(
@@ -24,7 +31,7 @@ const Country =({countries}) =>{
         return(
             <div>
                 <ul>
-                    {countries.map(name => <li key={name}>{name}</li>)}
+                    {countries.map(name => <li key={name}>{name} <ShowButton country={name} handler={countryHandler} /> </li>)}
                 </ul>
             </div>
         )
@@ -138,6 +145,26 @@ const App =() => {
         })
     }
 
+    // Get the data for a specific country by its name.
+    const showCountry = (countryName) =>{
+
+        let countryData = []
+
+        console.log("Country name:", countryName)
+
+        countryService.getCountry(countryName)
+            .then(response => {
+                // Add response country to country data.
+                countryData.push(response)
+                // Set country data.
+                setCountries(countryData)
+            })
+            .catch(error => {
+                console.log("Error fetching country data:", error)
+            })
+
+    }
+
     // Run this when country data changes.
     useEffect(() =>{
         console.log("Countries:", countries)
@@ -147,7 +174,7 @@ const App =() => {
         <div>
             <Searchbar handleFilterChange={handleFilterChange} />
             <Message message={message} />
-            <Country countries={countries} filter={filter}/>
+            <Country countries={countries} filter={filter} countryHandler={showCountry}/>
         </div>
     )
 }
