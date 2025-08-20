@@ -1,5 +1,7 @@
 import axios from 'axios'
 const baseURL = 'https://studies.cs.helsinki.fi/restcountries/api'
+const weatherURL = 'https://api.weatherapi.com/v1/current.json?'
+const weatherKey = import.meta.env.VITE_SOME_KEY
 
 // Get all countries.
 const getAll = () =>{
@@ -12,7 +14,14 @@ const getCountry = (name) =>{
     return request.then(response => response.data)
 }
 
+// Get weather data by country name.
+const getWeather = (lat, long) =>{
+    const request = axios.get(`${weatherURL}key=${weatherKey}&q=${lat},${long}`)
+    return request.then(response => response.data)
+}
+
 export default{
     getAll,
-    getCountry
+    getCountry,
+    getWeather
 }

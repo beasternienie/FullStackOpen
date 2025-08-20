@@ -17,6 +17,43 @@ const ShowButton = ({country, handler}) =>{
     )
 }
 
+const Weather = ({weatherData}) => {
+
+    console.log(weatherData)
+
+    if (Object.keys(weatherData).length !== 0) {
+
+        if(weatherData.message.length === 0) {
+
+            let temp = weatherData.temperature
+            let wind = weatherData.wind
+            let weatherImgURL = weatherData.imageURL
+
+            return (
+                <div>
+                    <h2>Weather in {weatherData.name}</h2>
+                    Temperature: {temp}° Celsius
+                    <p><img src={weatherImgURL} alt="Weather Image"/></p>
+                    Wind: {wind} mph
+                </div>
+            )
+        }
+        else{
+            return (
+                <div>
+                    <h2>Weather</h2>
+                    {weatherData.message}
+                </div>
+            )
+        }
+    }
+    else{
+        return(
+            <div></div>
+        )
+    }
+}
+
 // Display country information.
 const Country =({countries, countryHandler}) =>{
 
@@ -83,6 +120,9 @@ const App =() => {
     // Handle the currently shown country data.
     const [countries, setCountries] = useState([])
 
+    // Handle the currently shown weather data.
+    const [weather, setWeather] = useState({})
+
     const handleFilterChange = (event) => {
 
         setFilter(event.target.value)
@@ -93,7 +133,7 @@ const App =() => {
 
             // Make a copy of the country data.
             let data = [...response]
-            let filteredCountries = null
+            let filteredCountries = []
 
             // Only update filtered countries data if the search query is not empty.
             if(event.target.value.length > 0) {
@@ -109,12 +149,11 @@ const App =() => {
         }).then((filteredCountries) => {
 
             // Return early if there is no search query.
-            if(filteredCountries === null){
+            if(filteredCountries.length === 0 && event.target.value.length === 0){
                 setCountries([])
                 showMessage(null)
                 return
             }
-
             // If there is no valid country...
             if(filteredCountries.length === 0){
                 setCountries([])
@@ -122,9 +161,18 @@ const App =() => {
             }
             // If there is only 1 country to display...
             else if(filteredCountries.length === 1){
-                // Set country to filtered country data.
-                setCountries(filteredCountries)
-                showMessage(null)
+
+                if(countries.length === 1 && filteredCountries[0].name.common === countries[0].name.common){
+                    // Check if the countries are equivalent.
+                    console.log("Country not changed.")
+                }
+                else{
+                    console.log("Country has changed.")
+                    // Set country to filtered country data.
+                    setCountries(filteredCountries)
+                    showMessage(null)
+                }
+
             }
             // If more than 10 countries exist...
             else if(filteredCountries.length > 10){
@@ -165,9 +213,55 @@ const App =() => {
 
     }
 
+    const getWeather = (country) =>{
+
+        console.log("Country:", country)
+
+        let lat
+        let long
+
+        console.log(country.latlng[0])
+        console.log(country.capitalInfo)
+
+        if(Object.keys(country.capitalInfo).length > 0){
+            lat = country.capitalInfo.latlng[0]
+            long = country.capitalInfo.latlng[1]
+        }
+        else{
+            lat = country.latlng[0]
+            long = country.latlng[1]
+        }
+
+        countryService.getWeather(lat, long)
+            .then(response => {
+                const weather={
+                    name: response.location.name,
+                    temperature: response.current.temp_c,
+                    wind: response.current.wind_mph,
+                    imageURL: response.current.condition.icon,
+                    message: ""
+                }
+                console.log("Weather data:", weather)
+                setWeather(weather)
+            })
+            .catch(error => {
+                console.log("Error fetching weather data:", error)
+                // Show message if no data can be retrieved.
+                const weather={
+                    message: error.response.data.error.message
+                }
+                setWeather(weather)
+            })
+    }
+
     // Run this when country data changes.
     useEffect(() =>{
-        console.log("Countries:", countries)
+        if(countries.length === 1){
+            getWeather(countries[0])
+        }
+        else{
+            setWeather({})
+        }
     }, [countries])
 
     return (
@@ -175,6 +269,8 @@ const App =() => {
             <Searchbar handleFilterChange={handleFilterChange} />
             <Message message={message} />
             <Country countries={countries} filter={filter} countryHandler={showCountry}/>
+            <Weather weatherData={weather}/>
+
         </div>
     )
 }
